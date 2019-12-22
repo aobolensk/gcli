@@ -6,28 +6,37 @@ import (
 	"fmt"
 	"net/http"
 	"os"
+	"strconv"
 )
 
 func query(repository string) ([]map[string]interface{}, error) {
 	client := http.Client{}
-	req, err := http.NewRequest(
-		"GET",
-		"https://api.github.com/repos/"+repository+"/issues",
-		nil)
-	if err != nil {
-		return nil, err
-	}
-	req.Header.Add("Authorization", "token "+os.Getenv("GITHUB_TOKEN"))
-	req.Header.Add("Content-Type", "application/json")
-	resp, err := client.Do(req)
-	if err != nil {
-		return nil, err
-	}
 	var result []map[string]interface{}
-	defer resp.Body.Close()
-	err = json.NewDecoder(resp.Body).Decode(&result)
-	if err != nil {
-		return nil, err
+	for page := 1; ; page++ {
+		req, err := http.NewRequest(
+			"GET",
+			"https://api.github.com/repos/"+repository+"/issues?per_page=100&page="+
+				strconv.Itoa(page),
+			nil)
+		if err != nil {
+			return nil, err
+		}
+		req.Header.Add("Authorization", "token "+os.Getenv("GITHUB_TOKEN"))
+		req.Header.Add("Content-Type", "application/json")
+		resp, err := client.Do(req)
+		if err != nil {
+			return nil, err
+		}
+		var current []map[string]interface{}
+		defer resp.Body.Close()
+		err = json.NewDecoder(resp.Body).Decode(&current)
+		if err != nil {
+			return nil, err
+		}
+		if len(current) == 0 {
+			break
+		}
+		result = append(result, current...)
 	}
 	return result, nil
 }
