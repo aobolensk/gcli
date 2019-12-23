@@ -6,8 +6,18 @@ import (
 	"fmt"
 	"net/http"
 	"os"
+	"path/filepath"
 	"strconv"
 )
+
+func locateDotGit() error {
+	path, err := os.Getwd()
+	if err != nil {
+		return err
+	}
+	_, err = os.Stat(filepath.Join(path, ".git"))
+	return err
+}
 
 func query(repository string) ([]map[string]interface{}, error) {
 	client := http.Client{}
@@ -42,6 +52,11 @@ func query(repository string) ([]map[string]interface{}, error) {
 }
 
 func main() {
+	err := locateDotGit()
+	if err != nil {
+		fmt.Println("Could not find .git folder")
+		return
+	}
 	if os.Getenv("GITHUB_TOKEN") == "" {
 		fmt.Fprintln(os.Stderr, "Please, provide GITHUB_TOKEN as environment variable")
 		return
