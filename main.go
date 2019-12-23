@@ -55,11 +55,11 @@ func main() {
 	err := locateDotGit()
 	if err != nil {
 		fmt.Println("Could not find .git folder")
-		return
+		os.Exit(1)
 	}
 	if os.Getenv("GITHUB_TOKEN") == "" {
 		fmt.Fprintln(os.Stderr, "Please, provide GITHUB_TOKEN as environment variable")
-		return
+		os.Exit(1)
 	}
 	repository := flag.String("repo", "gooddoog/gcli", "Repository: author/repo")
 	flag.Parse()
