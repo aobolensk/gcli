@@ -64,6 +64,10 @@ func process(args []string) {
 					fmt.Fprintln(os.Stderr, err)
 					os.Exit(1)
 				}
+				if result["pull_request"] != nil {
+					fmt.Fprintln(os.Stderr, args[1]+" is a pull request")
+					os.Exit(1)
+				}
 				link := result["html_url"].(string)
 				splittedLink := strings.Split(link, "/")
 				state := result["state"].(string)
@@ -86,31 +90,70 @@ func process(args []string) {
 			os.Exit(1)
 		}
 	case "pr":
-		fmt.Println("List of opened pull requests for " + origin + ":")
-		var result []map[string]interface{}
-		for page := 1; ; page++ {
-			resp, err := queryList(
-				"GET",
-				"https://api.github.com/repos/"+origin+"/issues?per_page=100&page="+
-					strconv.Itoa(page))
+		if len(args) == 1 {
+			fmt.Println("List of opened pull requests for " + origin + ":")
+			var result []map[string]interface{}
+			for page := 1; ; page++ {
+				resp, err := queryList(
+					"GET",
+					"https://api.github.com/repos/"+origin+"/issues?per_page=100&page="+
+						strconv.Itoa(page))
+				if err != nil {
+					fmt.Fprintln(os.Stderr, err)
+					os.Exit(1)
+				}
+				if len(resp) == 0 {
+					break
+				}
+				result = append(result, resp...)
+			}
 			if err != nil {
 				fmt.Fprintln(os.Stderr, err)
 				os.Exit(1)
 			}
-			if len(resp) == 0 {
-				break
+			for _, issue := range result {
+				link := issue["html_url"].(string)
+				if strings.Contains(link, "pull") {
+					fmt.Println(link)
+				}
 			}
-			result = append(result, resp...)
-		}
-		if err != nil {
-			fmt.Fprintln(os.Stderr, err)
+		} else if len(args) == 2 {
+			if _, err := strconv.Atoi(args[1]); err == nil {
+				// Get issue information by number
+				result, err := queryObject(
+					"GET",
+					"https://api.github.com/repos/"+origin+"/pulls/"+args[1])
+				if err != nil {
+					fmt.Fprintln(os.Stderr, err)
+					os.Exit(1)
+				}
+				if result["message"] == "Not Found" {
+					fmt.Fprintln(os.Stderr, args[1]+" is an issue")
+					os.Exit(1)
+				}
+				link := result["html_url"].(string)
+				splittedLink := strings.Split(link, "/")
+				state := result["state"].(string)
+				if state == "open" {
+					state = "\033[32m" + state + "\033[0m"
+				} else if state == "closed" {
+					state = "\033[31m" + state + "\033[0m"
+					if result["merged_at"] != nil {
+						state = "\033[35mmerged\033[0m"
+					}
+				}
+				if splittedLink[len(splittedLink)-1] == args[1] {
+					fmt.Println("\033[1m" + result["title"].(string) +
+						" [" + state + "]\033[0m")
+					fmt.Println(result["body"].(string))
+				}
+			} else {
+				fmt.Fprintln(os.Stderr, "Unknown arguments for "+args[0])
+				os.Exit(1)
+			}
+		} else {
+			fmt.Fprintln(os.Stderr, "Unknown arguments for "+args[0])
 			os.Exit(1)
-		}
-		for _, issue := range result {
-			link := issue["html_url"].(string)
-			if strings.Contains(link, "pull") {
-				fmt.Println(link)
-			}
 		}
 	case "help":
 		fmt.Println(
