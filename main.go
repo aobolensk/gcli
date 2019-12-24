@@ -1,12 +1,13 @@
 package main
 
 import (
+	"bufio"
 	"encoding/json"
-	"flag"
 	"fmt"
 	"net/http"
 	"os"
 	"path/filepath"
+	"regexp"
 	"strconv"
 )
 
@@ -17,6 +18,33 @@ func locateDotGit() error {
 	}
 	_, err = os.Stat(filepath.Join(path, ".git"))
 	return err
+}
+
+func extractOrigin() (string, error) {
+	path, err := os.Getwd()
+	if err != nil {
+		return "", err
+	}
+	file, err := os.Open(filepath.Join(path, ".git", "config"))
+	if err != nil {
+		return "", err
+	}
+	defer file.Close()
+	scanner := bufio.NewScanner(file)
+	for scanner.Scan() {
+		remoteOriginMatch, _ := regexp.MatchString("\\[remote \"origin\"\\]", scanner.Text())
+		if remoteOriginMatch {
+			r, _ := regexp.Compile("http[s]?://github\\.com/(.+)\\.")
+			scanner.Scan()
+			origin := r.FindStringSubmatch(scanner.Text())[1]
+			fmt.Println(origin)
+			return origin, err
+		}
+	}
+	if err := scanner.Err(); err != nil {
+		return "", err
+	}
+	return "", err
 }
 
 func query(repository string) ([]map[string]interface{}, error) {
@@ -54,17 +82,21 @@ func query(repository string) ([]map[string]interface{}, error) {
 func main() {
 	err := locateDotGit()
 	if err != nil {
-		fmt.Println("Could not find .git folder")
+		fmt.Println("Could not find .git folder", err)
+		os.Exit(1)
+	}
+	origin, err := extractOrigin()
+	fmt.Println(origin)
+	if err != nil {
+		fmt.Println("Could not extract origin remote", err)
 		os.Exit(1)
 	}
 	if os.Getenv("GITHUB_TOKEN") == "" {
 		fmt.Fprintln(os.Stderr, "Please, provide GITHUB_TOKEN as environment variable")
 		os.Exit(1)
 	}
-	repository := flag.String("repo", "gooddoog/gcli", "Repository: author/repo")
-	flag.Parse()
-	fmt.Println("Getting list of opened issues for " + *repository + ":")
-	resp, err := query(*repository)
+	fmt.Println("Getting list of opened issues for " + origin + ":")
+	resp, err := query(origin)
 	for _, issue := range resp {
 		fmt.Println(issue["html_url"])
 	}
