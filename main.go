@@ -50,12 +50,40 @@ func process(args []string) {
 				fmt.Println(link)
 			}
 		}
+	case "pr":
+		fmt.Println("List of opened pull requests for " + origin + ":")
+		var result []map[string]interface{}
+		for page := 1; ; page++ {
+			resp, err := query(
+				"GET",
+				"https://api.github.com/repos/"+origin+"/issues?per_page=100&page="+
+					strconv.Itoa(page))
+			if err != nil {
+				fmt.Fprintln(os.Stderr, err)
+				os.Exit(1)
+			}
+			if len(resp) == 0 {
+				break
+			}
+			result = append(result, resp...)
+		}
+		if err != nil {
+			fmt.Fprintln(os.Stderr, err)
+			os.Exit(1)
+		}
+		for _, issue := range result {
+			link := issue["html_url"].(string)
+			if strings.Contains(link, "pull") {
+				fmt.Println(link)
+			}
+		}
 	case "help":
 		fmt.Println(
 			"Usage:\n" +
 				"\tgcli <command> [arguments]\n\n" +
 				"The commands are:\n" +
-				"\tissues\t\tget list of issues\n" +
+				"\tissue\t\tget list of issues\n" +
+				"\tpr\t\tget list of pull requests\n" +
 				"\thelp\t\tget this help message\n")
 	default:
 		fmt.Fprintln(os.Stderr, "Unknown command. Use: gcli help")
