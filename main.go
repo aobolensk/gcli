@@ -10,12 +10,14 @@ import (
 func process(args []string) {
 	err := locateDotGit()
 	if err != nil {
-		fmt.Fprintln(os.Stderr, "Could not find .git folder", err)
+		fmt.Fprintln(os.Stderr, "Could not find .git folder")
+		fmt.Fprintln(os.Stderr, err)
 		os.Exit(1)
 	}
 	origin, err := extractOrigin()
 	if err != nil {
-		fmt.Fprintln(os.Stderr, "Could not extract origin remote", err)
+		fmt.Fprintln(os.Stderr, "Could not extract origin remote")
+		fmt.Fprintln(os.Stderr, err)
 		os.Exit(1)
 	}
 	if len(args) == 0 {
