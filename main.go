@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"os"
 	"strconv"
+	"strings"
 )
 
 func process(args []string) {
@@ -22,7 +23,7 @@ func process(args []string) {
 		os.Exit(1)
 	}
 	switch args[0] {
-	case "issues":
+	case "issue":
 		fmt.Println("List of opened issues for " + origin + ":")
 		var result []map[string]interface{}
 		for page := 1; ; page++ {
@@ -44,7 +45,10 @@ func process(args []string) {
 			os.Exit(1)
 		}
 		for _, issue := range result {
-			fmt.Println(issue["html_url"])
+			link := issue["html_url"].(string)
+			if strings.Contains(link, "issues") {
+				fmt.Println(link)
+			}
 		}
 	case "help":
 		fmt.Println(
