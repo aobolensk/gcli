@@ -37,7 +37,6 @@ func extractOrigin() (string, error) {
 			r, _ := regexp.Compile("http[s]?://github\\.com/(.+)\\.")
 			scanner.Scan()
 			origin := r.FindStringSubmatch(scanner.Text())[1]
-			fmt.Println(origin)
 			return origin, err
 		}
 	}
@@ -78,7 +77,6 @@ func process(args []string) {
 		os.Exit(1)
 	}
 	origin, err := extractOrigin()
-	fmt.Println(origin)
 	if err != nil {
 		fmt.Fprintln(os.Stderr, "Could not extract origin remote", err)
 		os.Exit(1)
