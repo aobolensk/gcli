@@ -66,9 +66,16 @@ func process(args []string) {
 				}
 				link := result["html_url"].(string)
 				splittedLink := strings.Split(link, "/")
+				state := result["state"].(string)
+				if state == "open" {
+					state = "\033[32m" + state + "\033[0m"
+				} else if state == "closed" {
+					state = "\033[31m" + state + "\033[0m"
+				}
 				if splittedLink[len(splittedLink)-1] == args[1] {
-					fmt.Println(result["title"])
-					fmt.Println(result["body"])
+					fmt.Println("\033[1m" + result["title"].(string) +
+						" [" + state + "]\033[0m")
+					fmt.Println(result["body"].(string))
 				}
 			} else {
 				fmt.Fprintln(os.Stderr, "Unknown arguments for "+args[0])
