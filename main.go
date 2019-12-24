@@ -47,34 +47,26 @@ func extractOrigin() (string, error) {
 	return "", err
 }
 
-func query(repository string) ([]map[string]interface{}, error) {
+func query(httpMethod string, query string) ([]map[string]interface{}, error) {
 	client := http.Client{}
+	req, err := http.NewRequest(
+		httpMethod,
+		query,
+		nil)
+	if err != nil {
+		return nil, err
+	}
+	req.Header.Add("Authorization", "token "+os.Getenv("GITHUB_TOKEN"))
+	req.Header.Add("Content-Type", "application/json")
+	resp, err := client.Do(req)
+	if err != nil {
+		return nil, err
+	}
 	var result []map[string]interface{}
-	for page := 1; ; page++ {
-		req, err := http.NewRequest(
-			"GET",
-			"https://api.github.com/repos/"+repository+"/issues?per_page=100&page="+
-				strconv.Itoa(page),
-			nil)
-		if err != nil {
-			return nil, err
-		}
-		req.Header.Add("Authorization", "token "+os.Getenv("GITHUB_TOKEN"))
-		req.Header.Add("Content-Type", "application/json")
-		resp, err := client.Do(req)
-		if err != nil {
-			return nil, err
-		}
-		var current []map[string]interface{}
-		defer resp.Body.Close()
-		err = json.NewDecoder(resp.Body).Decode(&current)
-		if err != nil {
-			return nil, err
-		}
-		if len(current) == 0 {
-			break
-		}
-		result = append(result, current...)
+	defer resp.Body.Close()
+	err = json.NewDecoder(resp.Body).Decode(&result)
+	if err != nil {
+		return nil, err
 	}
 	return result, nil
 }
@@ -98,12 +90,26 @@ func process(args []string) {
 	switch args[0] {
 	case "issues":
 		fmt.Println("List of opened issues for " + origin + ":")
-		resp, err := query(origin)
+		var result []map[string]interface{}
+		for page := 1; ; page++ {
+			resp, err := query(
+				"GET",
+				"https://api.github.com/repos/"+origin+"/issues?per_page=100&page="+
+					strconv.Itoa(page))
+			if err != nil {
+				fmt.Fprintln(os.Stderr, err)
+				os.Exit(1)
+			}
+			if len(resp) == 0 {
+				break
+			}
+			result = append(result, resp...)
+		}
 		if err != nil {
-			fmt.Println(err)
+			fmt.Fprintln(os.Stderr, err)
 			os.Exit(1)
 		}
-		for _, issue := range resp {
+		for _, issue := range result {
 			fmt.Println(issue["html_url"])
 		}
 	case "help":
