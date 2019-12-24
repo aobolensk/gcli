@@ -74,13 +74,13 @@ func query(httpMethod string, query string) ([]map[string]interface{}, error) {
 func process(args []string) {
 	err := locateDotGit()
 	if err != nil {
-		fmt.Println("Could not find .git folder", err)
+		fmt.Fprintln(os.Stderr, "Could not find .git folder", err)
 		os.Exit(1)
 	}
 	origin, err := extractOrigin()
 	fmt.Println(origin)
 	if err != nil {
-		fmt.Println("Could not extract origin remote", err)
+		fmt.Fprintln(os.Stderr, "Could not extract origin remote", err)
 		os.Exit(1)
 	}
 	if len(args) == 0 {
