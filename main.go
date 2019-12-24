@@ -37,7 +37,6 @@ func extractOrigin() (string, error) {
 			r, _ := regexp.Compile("http[s]?://github\\.com/(.+)\\.")
 			scanner.Scan()
 			origin := r.FindStringSubmatch(scanner.Text())[1]
-			fmt.Println(origin)
 			return origin, err
 		}
 	}
@@ -47,60 +46,87 @@ func extractOrigin() (string, error) {
 	return "", err
 }
 
-func query(repository string) ([]map[string]interface{}, error) {
+func query(httpMethod string, query string) ([]map[string]interface{}, error) {
 	client := http.Client{}
+	req, err := http.NewRequest(
+		httpMethod,
+		query,
+		nil)
+	if err != nil {
+		return nil, err
+	}
+	req.Header.Add("Authorization", "token "+os.Getenv("GITHUB_TOKEN"))
+	req.Header.Add("Content-Type", "application/json")
+	resp, err := client.Do(req)
+	if err != nil {
+		return nil, err
+	}
 	var result []map[string]interface{}
-	for page := 1; ; page++ {
-		req, err := http.NewRequest(
-			"GET",
-			"https://api.github.com/repos/"+repository+"/issues?per_page=100&page="+
-				strconv.Itoa(page),
-			nil)
-		if err != nil {
-			return nil, err
-		}
-		req.Header.Add("Authorization", "token "+os.Getenv("GITHUB_TOKEN"))
-		req.Header.Add("Content-Type", "application/json")
-		resp, err := client.Do(req)
-		if err != nil {
-			return nil, err
-		}
-		var current []map[string]interface{}
-		defer resp.Body.Close()
-		err = json.NewDecoder(resp.Body).Decode(&current)
-		if err != nil {
-			return nil, err
-		}
-		if len(current) == 0 {
-			break
-		}
-		result = append(result, current...)
+	defer resp.Body.Close()
+	err = json.NewDecoder(resp.Body).Decode(&result)
+	if err != nil {
+		return nil, err
 	}
 	return result, nil
 }
 
-func main() {
+func process(args []string) {
 	err := locateDotGit()
 	if err != nil {
-		fmt.Println("Could not find .git folder", err)
+		fmt.Fprintln(os.Stderr, "Could not find .git folder", err)
 		os.Exit(1)
 	}
 	origin, err := extractOrigin()
-	fmt.Println(origin)
 	if err != nil {
-		fmt.Println("Could not extract origin remote", err)
+		fmt.Fprintln(os.Stderr, "Could not extract origin remote", err)
 		os.Exit(1)
 	}
+	if len(args) == 0 {
+		fmt.Fprintln(os.Stderr, "Use: gcli help")
+		os.Exit(1)
+	}
+	switch args[0] {
+	case "issues":
+		fmt.Println("List of opened issues for " + origin + ":")
+		var result []map[string]interface{}
+		for page := 1; ; page++ {
+			resp, err := query(
+				"GET",
+				"https://api.github.com/repos/"+origin+"/issues?per_page=100&page="+
+					strconv.Itoa(page))
+			if err != nil {
+				fmt.Fprintln(os.Stderr, err)
+				os.Exit(1)
+			}
+			if len(resp) == 0 {
+				break
+			}
+			result = append(result, resp...)
+		}
+		if err != nil {
+			fmt.Fprintln(os.Stderr, err)
+			os.Exit(1)
+		}
+		for _, issue := range result {
+			fmt.Println(issue["html_url"])
+		}
+	case "help":
+		fmt.Println(
+			"Usage:\n" +
+				"\tgcli <command> [arguments]\n\n" +
+				"The commands are:\n" +
+				"\tissues\t\tget list of issues\n" +
+				"\thelp\t\tget this help message\n")
+	default:
+		fmt.Fprintln(os.Stderr, "Unknown command. Use: gcli help")
+		os.Exit(1)
+	}
+}
+
+func main() {
 	if os.Getenv("GITHUB_TOKEN") == "" {
 		fmt.Fprintln(os.Stderr, "Please, provide GITHUB_TOKEN as environment variable")
 		os.Exit(1)
 	}
-	fmt.Println("Getting list of opened issues for " + origin + ":")
-	resp, err := query(origin)
-	for _, issue := range resp {
-		fmt.Println(issue["html_url"])
-	}
-	if err != nil {
-		fmt.Println(err)
-	}
+	process(os.Args[1:])
 }
