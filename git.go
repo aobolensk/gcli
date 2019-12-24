@@ -5,6 +5,7 @@ import (
 	"os"
 	"path/filepath"
 	"regexp"
+	"strings"
 )
 
 func locateDotGit() error {
@@ -30,9 +31,12 @@ func extractOrigin() (string, error) {
 	for scanner.Scan() {
 		remoteOriginMatch, _ := regexp.MatchString("\\[remote \"origin\"\\]", scanner.Text())
 		if remoteOriginMatch {
-			r, _ := regexp.Compile("http[s]?://github\\.com/(.+)\\.")
+			r, _ := regexp.Compile("http[s]?://github\\.com/(.+)")
 			scanner.Scan()
 			origin := r.FindStringSubmatch(scanner.Text())[1]
+			if strings.HasSuffix(origin, ".git") {
+				origin = origin[:len(origin)-4]
+			}
 			return origin, err
 		}
 	}
