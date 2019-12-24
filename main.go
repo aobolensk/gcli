@@ -26,37 +26,63 @@ func process(args []string) {
 	}
 	switch args[0] {
 	case "issue":
-		fmt.Println("List of opened issues for " + origin + ":")
-		var result []map[string]interface{}
-		for page := 1; ; page++ {
-			resp, err := query(
-				"GET",
-				"https://api.github.com/repos/"+origin+"/issues?per_page=100&page="+
-					strconv.Itoa(page))
+		if len(args) == 1 {
+			// Get list of opened issues
+			fmt.Println("List of opened issues for " + origin + ":")
+			var result []map[string]interface{}
+			for page := 1; ; page++ {
+				resp, err := queryList(
+					"GET",
+					"https://api.github.com/repos/"+origin+"/issues?per_page=100&page="+
+						strconv.Itoa(page))
+				if err != nil {
+					fmt.Fprintln(os.Stderr, err)
+					os.Exit(1)
+				}
+				if len(resp) == 0 {
+					break
+				}
+				result = append(result, resp...)
+			}
 			if err != nil {
 				fmt.Fprintln(os.Stderr, err)
 				os.Exit(1)
 			}
-			if len(resp) == 0 {
-				break
+			for _, issue := range result {
+				link := issue["html_url"].(string)
+				if strings.Contains(link, "issues") {
+					fmt.Println(link)
+				}
 			}
-			result = append(result, resp...)
-		}
-		if err != nil {
-			fmt.Fprintln(os.Stderr, err)
+		} else if len(args) == 2 {
+			if _, err := strconv.Atoi(args[1]); err == nil {
+				// Get issue information by number
+				result, err := queryObject(
+					"GET",
+					"https://api.github.com/repos/"+origin+"/issues/"+args[1])
+				if err != nil {
+					fmt.Fprintln(os.Stderr, err)
+					os.Exit(1)
+				}
+				link := result["html_url"].(string)
+				splittedLink := strings.Split(link, "/")
+				if splittedLink[len(splittedLink)-1] == args[1] {
+					fmt.Println(result["title"])
+					fmt.Println(result["body"])
+				}
+			} else {
+				fmt.Fprintln(os.Stderr, "Unknown arguments for "+args[0])
+				os.Exit(1)
+			}
+		} else {
+			fmt.Fprintln(os.Stderr, "Unknown arguments for "+args[0])
 			os.Exit(1)
-		}
-		for _, issue := range result {
-			link := issue["html_url"].(string)
-			if strings.Contains(link, "issues") {
-				fmt.Println(link)
-			}
 		}
 	case "pr":
 		fmt.Println("List of opened pull requests for " + origin + ":")
 		var result []map[string]interface{}
 		for page := 1; ; page++ {
-			resp, err := query(
+			resp, err := queryList(
 				"GET",
 				"https://api.github.com/repos/"+origin+"/issues?per_page=100&page="+
 					strconv.Itoa(page))
