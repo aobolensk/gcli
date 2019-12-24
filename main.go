@@ -79,7 +79,7 @@ func query(repository string) ([]map[string]interface{}, error) {
 	return result, nil
 }
 
-func main() {
+func process(args []string) {
 	err := locateDotGit()
 	if err != nil {
 		fmt.Println("Could not find .git folder", err)
@@ -91,16 +91,38 @@ func main() {
 		fmt.Println("Could not extract origin remote", err)
 		os.Exit(1)
 	}
+	if len(args) == 0 {
+		fmt.Fprintln(os.Stderr, "Use: gcli help")
+		os.Exit(1)
+	}
+	switch args[0] {
+	case "issues":
+		fmt.Println("List of opened issues for " + origin + ":")
+		resp, err := query(origin)
+		if err != nil {
+			fmt.Println(err)
+			os.Exit(1)
+		}
+		for _, issue := range resp {
+			fmt.Println(issue["html_url"])
+		}
+	case "help":
+		fmt.Println(
+			"Usage:\n" +
+				"\tgcli <command> [arguments]\n\n" +
+				"The commands are:\n" +
+				"\tissues\t\tget list of issues\n" +
+				"\thelp\t\tget this help message\n")
+	default:
+		fmt.Fprintln(os.Stderr, "Unknown command. Use: gcli help")
+		os.Exit(1)
+	}
+}
+
+func main() {
 	if os.Getenv("GITHUB_TOKEN") == "" {
 		fmt.Fprintln(os.Stderr, "Please, provide GITHUB_TOKEN as environment variable")
 		os.Exit(1)
 	}
-	fmt.Println("Getting list of opened issues for " + origin + ":")
-	resp, err := query(origin)
-	for _, issue := range resp {
-		fmt.Println(issue["html_url"])
-	}
-	if err != nil {
-		fmt.Println(err)
-	}
+	process(os.Args[1:])
 }
