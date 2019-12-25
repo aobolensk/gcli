@@ -8,7 +8,7 @@ import (
 )
 
 func process(args []string) {
-	err := locateDotGit()
+	_, err := locateDotGit()
 	if err != nil {
 		fmt.Fprintln(os.Stderr, "Could not find .git folder")
 		fmt.Fprintln(os.Stderr, err)

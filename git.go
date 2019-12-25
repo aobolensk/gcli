@@ -2,27 +2,41 @@ package main
 
 import (
 	"bufio"
+	"errors"
 	"os"
 	"path/filepath"
 	"regexp"
 	"strings"
 )
 
-func locateDotGit() error {
-	path, err := os.Getwd()
-	if err != nil {
-		return err
-	}
-	_, err = os.Stat(filepath.Join(path, ".git"))
-	return err
-}
-
-func extractOrigin() (string, error) {
+func locateDotGit() (string, error) {
 	path, err := os.Getwd()
 	if err != nil {
 		return "", err
 	}
-	file, err := os.Open(filepath.Join(path, ".git", "config"))
+	for i := 1; i < 50; i++ {
+		if _, err := os.Stat(path); err != nil {
+			break
+		}
+		_, err := os.Stat(filepath.Join(path, ".git"))
+		if err == nil {
+			return filepath.Join(path, ".git"), err
+		}
+		newPath := filepath.Join(path, "..")
+		if newPath == path {
+			return "", errors.New("Reached root directory and could not find .git folder")
+		}
+		path = newPath
+	}
+	return "", errors.New("Reached max amount of iterations in locateDotGit()")
+}
+
+func extractOrigin() (string, error) {
+	path, err := locateDotGit()
+	if err != nil {
+		return "", err
+	}
+	file, err := os.Open(filepath.Join(path, "config"))
 	if err != nil {
 		return "", err
 	}
