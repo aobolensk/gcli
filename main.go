@@ -51,7 +51,7 @@ func process(args []string) {
 			for _, issue := range result {
 				link := issue["html_url"].(string)
 				if strings.Contains(link, "issues") {
-					fmt.Println(link)
+					fmt.Printf("%-*.*s > %s\n", 50, 50, issue["title"].(string), link)
 				}
 			}
 		} else if len(args) == 2 {
@@ -114,7 +114,7 @@ func process(args []string) {
 			for _, issue := range result {
 				link := issue["html_url"].(string)
 				if strings.Contains(link, "pull") {
-					fmt.Println(link)
+					fmt.Printf("%-*.*s > %s\n", 50, 50, issue["title"].(string), link)
 				}
 			}
 		} else if len(args) == 2 {
