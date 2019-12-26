@@ -3,6 +3,7 @@ package main
 import (
 	"bufio"
 	"errors"
+	"fmt"
 	"os"
 	"path/filepath"
 	"regexp"
@@ -14,7 +15,8 @@ func locateDotGit() (string, error) {
 	if err != nil {
 		return "", err
 	}
-	for i := 1; i < 50; i++ {
+	const MAXITERATIONS = 1
+	for i := 0; i < MAXITERATIONS; i++ {
 		if _, err := os.Stat(path); err != nil {
 			break
 		}
@@ -28,7 +30,8 @@ func locateDotGit() (string, error) {
 		}
 		path = newPath
 	}
-	return "", errors.New("Reached max amount of iterations in locateDotGit()")
+	return "", fmt.Errorf(
+		"Reached max amount of iterations (%d) in locateDotGit function", MAXITERATIONS)
 }
 
 func extractOrigin() (string, error) {
