@@ -15,7 +15,7 @@ func locateDotGit() (string, error) {
 	if err != nil {
 		return "", err
 	}
-	const MAXITERATIONS = 1
+	const MAXITERATIONS = 32
 	for i := 0; i < MAXITERATIONS; i++ {
 		if _, err := os.Stat(path); err != nil {
 			break
