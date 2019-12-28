@@ -25,6 +25,19 @@ func process(args []string) {
 		os.Exit(1)
 	}
 	switch args[0] {
+	case "info":
+		resp, err := queryObject(
+			"GET",
+			"https://api.github.com/repos/"+origin)
+		if err != nil {
+			fmt.Fprintln(os.Stderr, err)
+			os.Exit(1)
+		}
+		fmt.Printf("Link: %s -> %d ⭐; %d ⑂; %d ❗\n",
+			resp["html_url"].(string),
+			uint(resp["stargazers_count"].(float64)),
+			uint(resp["forks"].(float64)),
+			uint(resp["open_issues"].(float64)))
 	case "issue":
 		if len(args) == 1 {
 			// Get list of opened issues
