@@ -38,7 +38,7 @@ func process(args []string) {
 			uint(resp["stargazers_count"].(float64)),
 			uint(resp["forks"].(float64)),
 			uint(resp["open_issues"].(float64)),
-			uint(resp["watchers"].(float64)))
+			uint(resp["subscribers_count"].(float64)))
 		fmt.Println("Owner: " + resp["owner"].(map[string]interface{})["html_url"].(string))
 		fmt.Println("Last update: " + resp["updated_at"].(string))
 	case "issue":
