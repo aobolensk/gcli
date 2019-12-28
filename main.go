@@ -176,6 +176,7 @@ func process(args []string) {
 			"Usage:\n" +
 				"\tgcli <command> [arguments]\n\n" +
 				"The commands are:\n" +
+				"\tinfo\t\tget info about this repo\n" +
 				"\tissue\t\tget list of issues\n" +
 				"\tpr\t\tget list of pull requests\n" +
 				"\thelp\t\tget this help message\n")
