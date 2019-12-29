@@ -45,7 +45,6 @@ func process(args []string) {
 		if len(args) == 1 {
 			// Get list of opened commits
 			fmt.Println("List of commits for " + origin + ":")
-			var result []map[string]interface{}
 			for page := 1; ; page++ {
 				resp, err := queryList(
 					"GET",
@@ -58,18 +57,17 @@ func process(args []string) {
 				if len(resp) == 0 {
 					break
 				}
-				result = append(result, resp...)
-			}
-			if err != nil {
-				fmt.Fprintln(os.Stderr, err)
-				os.Exit(1)
-			}
-			for _, commit := range result {
-				fmt.Printf("%s %-*.*s %s\n",
-					commit["sha"].(string)[0:7],
-					20, 20,
-					commit["commit"].(map[string]interface{})["author"].(map[string]interface{})["name"].(string),
-					strings.Split(commit["commit"].(map[string]interface{})["message"].(string), "\n")[0])
+				for _, commit := range resp {
+					fmt.Printf("%s %-*.*s %s\n",
+						commit["sha"].(string)[0:7],
+						20, 20,
+						commit["commit"].(map[string]interface{})["author"].(map[string]interface{})["name"].(string),
+						strings.Split(commit["commit"].(map[string]interface{})["message"].(string), "\n")[0])
+				}
+				if err != nil {
+					fmt.Fprintln(os.Stderr, err)
+					os.Exit(1)
+				}
 			}
 		} else {
 			fmt.Fprintln(os.Stderr, "Unknown arguments for "+args[0])
@@ -79,7 +77,6 @@ func process(args []string) {
 		if len(args) == 1 {
 			// Get list of opened issues
 			fmt.Println("List of opened issues for " + origin + ":")
-			var result []map[string]interface{}
 			for page := 1; ; page++ {
 				resp, err := queryList(
 					"GET",
@@ -92,16 +89,15 @@ func process(args []string) {
 				if len(resp) == 0 {
 					break
 				}
-				result = append(result, resp...)
-			}
-			if err != nil {
-				fmt.Fprintln(os.Stderr, err)
-				os.Exit(1)
-			}
-			for _, issue := range result {
-				link := issue["html_url"].(string)
-				if strings.Contains(link, "issues") {
-					fmt.Printf("%-*.*s > %s\n", 50, 50, issue["title"].(string), link)
+				for _, issue := range resp {
+					link := issue["html_url"].(string)
+					if strings.Contains(link, "issues") {
+						fmt.Printf("%-*.*s > %s\n", 50, 50, issue["title"].(string), link)
+					}
+				}
+				if err != nil {
+					fmt.Fprintln(os.Stderr, err)
+					os.Exit(1)
 				}
 			}
 		} else if len(args) == 2 {
@@ -142,7 +138,6 @@ func process(args []string) {
 	case "pr":
 		if len(args) == 1 {
 			fmt.Println("List of opened pull requests for " + origin + ":")
-			var result []map[string]interface{}
 			for page := 1; ; page++ {
 				resp, err := queryList(
 					"GET",
@@ -155,16 +150,15 @@ func process(args []string) {
 				if len(resp) == 0 {
 					break
 				}
-				result = append(result, resp...)
-			}
-			if err != nil {
-				fmt.Fprintln(os.Stderr, err)
-				os.Exit(1)
-			}
-			for _, issue := range result {
-				link := issue["html_url"].(string)
-				if strings.Contains(link, "pull") {
-					fmt.Printf("%-*.*s > %s\n", 50, 50, issue["title"].(string), link)
+				for _, issue := range resp {
+					link := issue["html_url"].(string)
+					if strings.Contains(link, "pull") {
+						fmt.Printf("%-*.*s > %s\n", 50, 50, issue["title"].(string), link)
+					}
+				}
+				if err != nil {
+					fmt.Fprintln(os.Stderr, err)
+					os.Exit(1)
 				}
 			}
 		} else if len(args) == 2 {
