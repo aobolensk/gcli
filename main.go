@@ -122,9 +122,16 @@ func process(args []string) {
 				} else if state == "closed" {
 					state = "\033[31m" + state + "\033[0m"
 				}
+				labels := [](string){}
+				for _, label := range result["labels"].([]interface{}) {
+					labels = append(labels, label.(map[string]interface{})["name"].(string))
+				}
 				if splittedLink[len(splittedLink)-1] == args[1] {
 					fmt.Println("\033[1m" + result["title"].(string) +
 						" [" + state + "]\033[0m")
+					if len(labels) > 0 {
+						fmt.Println("Labels: " + strings.Join(labels[:], ", "))
+					}
 					fmt.Println(result["body"].(string))
 				}
 			} else {
