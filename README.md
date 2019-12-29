@@ -4,12 +4,12 @@
 
 ### Build and run:
 ```console
-go build
-export GITHUB_TOKEN=<your github token>
-./gcli
+$ go build
+$ export GITHUB_TOKEN=<your github token>
+$ ./gcli
 ```
 
 ### Installation:
 ```console
-GOBIN=<installation path> go install
+$ GOBIN=<installation path> go install
 ```
