@@ -1,6 +1,7 @@
 package main
 
 import (
+	"bufio"
 	"fmt"
 	"os"
 	"strconv"
@@ -34,10 +35,47 @@ func getOpenIssues(args []string, origin string) {
 	}
 }
 
+func createIssue(args []string, origin string) {
+	scanner := bufio.NewScanner(os.Stdin)
+	fmt.Println("Issue title:")
+	scanner.Scan()
+	title := scanner.Text()
+	if len(title) == 0 {
+		fmt.Fprintln(os.Stderr, "Creating issue was cancelled")
+		os.Exit(1)
+	}
+	fmt.Println("Issue body (Ctrl+D - *nix, Ctrl+Z - Windows):")
+	body := ""
+	for scanner.Scan() {
+		body += scanner.Text()
+	}
+	fmt.Println("Title: ", title)
+	fmt.Println("Body: ", body)
+	object := map[string]interface{}{
+		"title": title,
+		"body":  body,
+	}
+	resp, err := queryObject(
+		"POST",
+		"https://api.github.com/repos/"+origin+"/issues",
+		object)
+	if err != nil {
+		fmt.Fprintln(os.Stderr, err)
+		os.Exit(1)
+	}
+	if resp["title"] != nil {
+		fmt.Println("Issue successfully created")
+	} else {
+		fmt.Fprintln(os.Stderr, "Issue was not created")
+		os.Exit(1)
+	}
+}
+
 func getIssueByNumber(args []string, origin string) {
 	result, err := queryObject(
 		"GET",
-		"https://api.github.com/repos/"+origin+"/issues/"+args[1])
+		"https://api.github.com/repos/"+origin+"/issues/"+args[1],
+		nil)
 	if err != nil {
 		fmt.Fprintln(os.Stderr, err)
 		os.Exit(1)

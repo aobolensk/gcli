@@ -37,7 +37,8 @@ func getOpenPullRequests(args []string, origin string) {
 func getPullRequestByNumber(args []string, origin string) {
 	result, err := queryObject(
 		"GET",
-		"https://api.github.com/repos/"+origin+"/pulls/"+args[1])
+		"https://api.github.com/repos/"+origin+"/pulls/"+args[1],
+		nil)
 	if err != nil {
 		fmt.Fprintln(os.Stderr, err)
 		os.Exit(1)

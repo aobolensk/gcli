@@ -37,7 +37,9 @@ func process(args []string) {
 		if len(args) == 1 {
 			getOpenIssues(args, origin)
 		} else if len(args) == 2 {
-			if _, err := strconv.Atoi(args[1]); err == nil {
+			if args[1] == "create" {
+				createIssue(args, origin)
+			} else if _, err := strconv.Atoi(args[1]); err == nil {
 				getIssueByNumber(args, origin)
 			} else {
 				fmt.Fprintln(os.Stderr, "Unknown arguments for "+args[0])
