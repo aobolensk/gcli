@@ -8,7 +8,8 @@ import (
 func getInfo(args []string, origin string) {
 	resp, err := queryObject(
 		"GET",
-		"https://api.github.com/repos/"+origin)
+		"https://api.github.com/repos/"+origin,
+		nil)
 	if err != nil {
 		fmt.Fprintln(os.Stderr, err)
 		os.Exit(1)

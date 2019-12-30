@@ -1,17 +1,25 @@
 package main
 
 import (
+	"bytes"
 	"encoding/json"
 	"net/http"
 	"os"
 )
 
-func queryObject(httpMethod string, query string) (map[string]interface{}, error) {
+func queryObject(httpMethod string, query string, body map[string]interface{}) (map[string]interface{}, error) {
 	client := http.Client{}
+	bodyBuffer := new(bytes.Buffer)
+	if body != nil {
+		err := json.NewEncoder(bodyBuffer).Encode(body)
+		if err != nil {
+			return nil, err
+		}
+	}
 	req, err := http.NewRequest(
 		httpMethod,
 		query,
-		nil)
+		bodyBuffer)
 	if err != nil {
 		return nil, err
 	}

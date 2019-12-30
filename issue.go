@@ -37,7 +37,8 @@ func getOpenIssues(args []string, origin string) {
 func getIssueByNumber(args []string, origin string) {
 	result, err := queryObject(
 		"GET",
-		"https://api.github.com/repos/"+origin+"/issues/"+args[1])
+		"https://api.github.com/repos/"+origin+"/issues/"+args[1],
+		nil)
 	if err != nil {
 		fmt.Fprintln(os.Stderr, err)
 		os.Exit(1)
