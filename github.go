@@ -3,6 +3,7 @@ package main
 import (
 	"bytes"
 	"encoding/json"
+	"fmt"
 	"net/http"
 	"os"
 )
@@ -34,6 +35,9 @@ func queryObject(httpMethod string, query string, body map[string]interface{}) (
 	err = json.NewDecoder(resp.Body).Decode(&result)
 	if err != nil {
 		return nil, err
+	}
+	if resp.StatusCode < 200 || resp.StatusCode > 299 {
+		return result, fmt.Errorf("Status code: %d\nError: %s", resp.StatusCode, err)
 	}
 	return result, nil
 }
