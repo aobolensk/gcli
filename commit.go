@@ -34,3 +34,23 @@ func getOpenCommits(args []string, origin string) {
 		}
 	}
 }
+
+func getCommitBySHA(args []string, origin string) {
+	resp, err := queryObject(
+		"GET",
+		"https://api.github.com/repos/"+origin+"/commits/"+args[1],
+		nil)
+	if err != nil {
+		fmt.Fprintln(os.Stderr, err)
+		os.Exit(1)
+	}
+	if resp["message"] != nil {
+		fmt.Fprintln(os.Stderr, resp["message"])
+		os.Exit(1)
+	}
+	fmt.Printf("%s\nAuthor: %s %s\n%s\n",
+		resp["commit"].(map[string]interface{})["url"],
+		resp["commit"].(map[string]interface{})["author"].(map[string]interface{})["name"],
+		resp["commit"].(map[string]interface{})["author"].(map[string]interface{})["email"],
+		resp["commit"].(map[string]interface{})["message"])
+}

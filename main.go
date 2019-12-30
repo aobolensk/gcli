@@ -29,6 +29,8 @@ func process(args []string) {
 	case "commit":
 		if len(args) == 1 {
 			getOpenCommits(args, origin)
+		} else if len(args) == 2 {
+			getCommitBySHA(args, origin)
 		} else {
 			fmt.Fprintln(os.Stderr, "Unknown arguments for "+args[0])
 			os.Exit(1)
