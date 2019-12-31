@@ -70,6 +70,7 @@ func process(args []string) {
 			"Usage:\n" +
 				"\tgcli <command> [arguments]\n\n" +
 				"The commands are:\n" +
+				"\tcommit\t\tget list of commits in master branch\n" +
 				"\tinfo\t\tget info about this repo\n" +
 				"\tissue\t\tget list of issues\n" +
 				"\tpr\t\tget list of pull requests\n" +
