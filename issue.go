@@ -14,7 +14,8 @@ func getOpenIssues(args []string, origin string) {
 		resp, err := queryList(
 			"GET",
 			"https://api.github.com/repos/"+origin+"/issues?per_page=100&page="+
-				strconv.Itoa(page))
+				strconv.Itoa(page),
+			nil)
 		if err != nil {
 			fmt.Fprintln(os.Stderr, err)
 			os.Exit(1)
