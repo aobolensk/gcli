@@ -44,8 +44,8 @@ func getPullRequestByNumber(args []string, origin string) {
 		fmt.Fprintln(os.Stderr, err)
 		os.Exit(1)
 	}
-	if result["message"] == "Not Found" {
-		fmt.Fprintln(os.Stderr, args[1]+" is an issue")
+	if result["message"] != nil {
+		fmt.Fprintln(os.Stderr, result["message"])
 		os.Exit(1)
 	}
 	link := result["html_url"].(string)

@@ -81,6 +81,10 @@ func getIssueByNumber(args []string, origin string) {
 		fmt.Fprintln(os.Stderr, err)
 		os.Exit(1)
 	}
+	if result["message"] != nil {
+		fmt.Fprintln(os.Stderr, result["message"])
+		os.Exit(1)
+	}
 	if result["pull_request"] != nil {
 		fmt.Fprintln(os.Stderr, args[1]+" is a pull request")
 		os.Exit(1)
