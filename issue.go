@@ -45,7 +45,7 @@ func createIssue(args []string, origin string) {
 		fmt.Fprintln(os.Stderr, "Creating issue was cancelled")
 		os.Exit(1)
 	}
-	fmt.Println("Issue body (Ctrl+D - *nix, Ctrl+Z - Windows):")
+	fmt.Println("Issue body (End of body: Ctrl+D - *nix or Ctrl+Z - Windows):")
 	body := ""
 	for scanner.Scan() {
 		body += scanner.Text()
