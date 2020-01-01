@@ -108,6 +108,26 @@ func editIssue(args []string, origin string) {
 	}
 }
 
+func closeIssue(args []string, origin string) {
+	object := map[string]interface{}{
+		"state": "closed",
+	}
+	resp, err := queryObject(
+		"PATCH",
+		"https://api.github.com/repos/"+origin+"/issues/"+args[2],
+		object)
+	if err != nil {
+		fmt.Fprintln(os.Stderr, err)
+		os.Exit(1)
+	}
+	if resp["state"] == "closed" {
+		fmt.Println("Issue successfully closed")
+	} else {
+		fmt.Fprintln(os.Stderr, "Issue was not closed")
+		os.Exit(1)
+	}
+}
+
 func getIssueByNumber(args []string, origin string) {
 	result, err := queryObject(
 		"GET",

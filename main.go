@@ -55,6 +55,16 @@ func process(args []string) {
 					fmt.Fprintln(os.Stderr, "Format: gcli issue edit <number>")
 					os.Exit(1)
 				}
+			} else if args[1] == "close" {
+				if _, err := strconv.Atoi(args[2]); err == nil {
+					closeIssue(args, origin)
+				} else {
+					fmt.Fprintln(os.Stderr, "Format: gcli issue close <number>")
+					os.Exit(1)
+				}
+			} else {
+				fmt.Fprintln(os.Stderr, "Unknown arguments for "+args[0])
+				os.Exit(1)
 			}
 		} else {
 			fmt.Fprintln(os.Stderr, "Unknown arguments for "+args[0])
