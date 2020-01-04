@@ -73,6 +73,18 @@ func process(args []string) {
 				fmt.Fprintln(os.Stderr, "Unknown arguments for "+args[0])
 				os.Exit(1)
 			}
+		} else if len(args) == 4 {
+			if args[1] == "assign" {
+				if _, err := strconv.Atoi(args[2]); err == nil {
+					assignUserToTheIssue(args, origin)
+				} else {
+					fmt.Fprintln(os.Stderr, "Format: gcli issue assign <number> <assignee>")
+					os.Exit(1)
+				}
+			} else {
+				fmt.Fprintln(os.Stderr, "Unknown arguments for "+args[0])
+				os.Exit(1)
+			}
 		} else {
 			fmt.Fprintln(os.Stderr, "Unknown arguments for "+args[0])
 			os.Exit(1)
