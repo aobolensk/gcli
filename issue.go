@@ -73,13 +73,29 @@ func createIssue(args []string, origin string) {
 }
 
 func editIssue(args []string, origin string) {
-	scanner := bufio.NewScanner(os.Stdin)
-	fmt.Println("Issue title:")
-	scanner.Scan()
-	title := scanner.Text()
-	if len(title) == 0 {
-		fmt.Fprintln(os.Stderr, "Creating issue was cancelled")
+	result, err := queryObject(
+		"GET",
+		"https://api.github.com/repos/"+origin+"/issues/"+args[2],
+		nil)
+	if err != nil {
+		fmt.Fprintln(os.Stderr, err)
 		os.Exit(1)
+	}
+	if result["message"] != nil {
+		fmt.Fprintln(os.Stderr, result["message"])
+		os.Exit(1)
+	}
+	if result["pull_request"] != nil {
+		fmt.Fprintln(os.Stderr, args[1]+" is a pull request")
+		os.Exit(1)
+	}
+	title := result["title"]
+	scanner := bufio.NewScanner(os.Stdin)
+	fmt.Printf("Issue title [%s]:\n", title)
+	scanner.Scan()
+	titleBuffer := scanner.Text()
+	if len(titleBuffer) > 0 {
+		title = titleBuffer
 	}
 	fmt.Println("Issue body (End of body: Ctrl+D - *nix or Ctrl+Z - Windows):")
 	body := ""
