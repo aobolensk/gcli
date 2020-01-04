@@ -1,6 +1,7 @@
 package main
 
 import (
+	"bufio"
 	"fmt"
 	"os"
 	"strconv"
@@ -32,6 +33,54 @@ func getOpenPullRequests(args []string, origin string) {
 			fmt.Fprintln(os.Stderr, err)
 			os.Exit(1)
 		}
+	}
+}
+
+func editPullRequest(args []string, origin string) {
+	result, err := queryObject(
+		"GET",
+		"https://api.github.com/repos/"+origin+"/pulls/"+args[2],
+		nil)
+	if err != nil {
+		fmt.Fprintln(os.Stderr, err)
+		os.Exit(1)
+	}
+	if result["message"] != nil {
+		fmt.Fprintln(os.Stderr, result["message"])
+		os.Exit(1)
+	}
+	title := result["title"]
+	scanner := bufio.NewScanner(os.Stdin)
+	fmt.Printf("Pull request title [%s]:\n", title)
+	scanner.Scan()
+	titleBuffer := scanner.Text()
+	if len(titleBuffer) > 0 {
+		title = titleBuffer
+	}
+	fmt.Println("Pull request body (End of body: Ctrl+D - *nix or Ctrl+Z - Windows):")
+	body := ""
+	for scanner.Scan() {
+		body += scanner.Text()
+	}
+	fmt.Println("Title: ", title)
+	fmt.Println("Body: ", body)
+	object := map[string]interface{}{
+		"title": title,
+		"body":  body,
+	}
+	resp, err := queryObject(
+		"PATCH",
+		"https://api.github.com/repos/"+origin+"/pulls/"+args[2],
+		object)
+	if err != nil {
+		fmt.Fprintln(os.Stderr, err)
+		os.Exit(1)
+	}
+	if resp["title"] != nil {
+		fmt.Println("Pull request successfully updated")
+	} else {
+		fmt.Fprintln(os.Stderr, "Pull request was not updated")
+		os.Exit(1)
 	}
 }
 
