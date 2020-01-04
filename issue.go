@@ -144,6 +144,26 @@ func assignUserToTheIssue(args []string, origin string) {
 	}
 }
 
+func unassignUserFromTheIssue(args []string, origin string) {
+	object := map[string]interface{}{
+		"assignees": args[3],
+	}
+	resp, err := queryObject(
+		"DELETE",
+		"https://api.github.com/repos/"+origin+"/issues/"+args[2]+"/assignees",
+		object)
+	if err != nil {
+		fmt.Fprintln(os.Stderr, err)
+		os.Exit(1)
+	}
+	if resp["assignees"] != nil {
+		fmt.Println("Issue successfully updated")
+	} else {
+		fmt.Fprintln(os.Stderr, "Issue was not updated")
+		os.Exit(1)
+	}
+}
+
 func closeIssue(args []string, origin string) {
 	object := map[string]interface{}{
 		"state": "closed",
