@@ -2,7 +2,6 @@ package main
 
 import (
 	"fmt"
-	"os"
 )
 
 func getInfo(args []string, origin string) {
@@ -10,10 +9,7 @@ func getInfo(args []string, origin string) {
 		"GET",
 		"https://api.github.com/repos/"+origin,
 		nil)
-	if err != nil {
-		fmt.Fprintln(os.Stderr, err)
-		os.Exit(1)
-	}
+	checkError(err)
 	fmt.Printf("Link: %s -> %d ⭐; %d ⑂; %d ❗; %d 👁️\n",
 		resp["html_url"].(string),
 		uint(resp["stargazers_count"].(float64)),

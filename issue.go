@@ -60,10 +60,7 @@ func createIssue(args []string, origin string) {
 		"POST",
 		"https://api.github.com/repos/"+origin+"/issues",
 		object)
-	if err != nil {
-		fmt.Fprintln(os.Stderr, err)
-		os.Exit(1)
-	}
+	checkError(err)
 	if resp["title"] != nil {
 		fmt.Println("Issue successfully created")
 	} else {
@@ -77,10 +74,7 @@ func editIssue(args []string, origin string) {
 		"GET",
 		"https://api.github.com/repos/"+origin+"/issues/"+args[2],
 		nil)
-	if err != nil {
-		fmt.Fprintln(os.Stderr, err)
-		os.Exit(1)
-	}
+	checkError(err)
 	if result["message"] != nil {
 		fmt.Fprintln(os.Stderr, result["message"])
 		os.Exit(1)
@@ -112,10 +106,7 @@ func editIssue(args []string, origin string) {
 		"PATCH",
 		"https://api.github.com/repos/"+origin+"/issues/"+args[2],
 		object)
-	if err != nil {
-		fmt.Fprintln(os.Stderr, err)
-		os.Exit(1)
-	}
+	checkError(err)
 	if resp["title"] != nil {
 		fmt.Println("Issue successfully updated")
 	} else {
@@ -132,10 +123,7 @@ func assignUserToTheIssue(args []string, origin string) {
 		"POST",
 		"https://api.github.com/repos/"+origin+"/issues/"+args[2]+"/assignees",
 		object)
-	if err != nil {
-		fmt.Fprintln(os.Stderr, err)
-		os.Exit(1)
-	}
+	checkError(err)
 	if resp["assignees"] != nil {
 		fmt.Println("Issue successfully updated")
 	} else {
@@ -152,10 +140,7 @@ func unassignUserFromTheIssue(args []string, origin string) {
 		"DELETE",
 		"https://api.github.com/repos/"+origin+"/issues/"+args[2]+"/assignees",
 		object)
-	if err != nil {
-		fmt.Fprintln(os.Stderr, err)
-		os.Exit(1)
-	}
+	checkError(err)
 	if resp["assignees"] != nil {
 		fmt.Println("Issue successfully updated")
 	} else {
@@ -172,10 +157,7 @@ func closeIssue(args []string, origin string) {
 		"PATCH",
 		"https://api.github.com/repos/"+origin+"/issues/"+args[2],
 		object)
-	if err != nil {
-		fmt.Fprintln(os.Stderr, err)
-		os.Exit(1)
-	}
+	checkError(err)
 	if resp["state"] == "closed" {
 		fmt.Println("Issue successfully closed")
 	} else {
@@ -192,10 +174,7 @@ func reopenIssue(args []string, origin string) {
 		"PATCH",
 		"https://api.github.com/repos/"+origin+"/issues/"+args[2],
 		object)
-	if err != nil {
-		fmt.Fprintln(os.Stderr, err)
-		os.Exit(1)
-	}
+	checkError(err)
 	if resp["state"] == "open" {
 		fmt.Println("Issue successfully reopened")
 	} else {
@@ -209,10 +188,7 @@ func getIssueByNumber(args []string, origin string) {
 		"GET",
 		"https://api.github.com/repos/"+origin+"/issues/"+args[1],
 		nil)
-	if err != nil {
-		fmt.Fprintln(os.Stderr, err)
-		os.Exit(1)
-	}
+	checkError(err)
 	if result["message"] != nil {
 		fmt.Fprintln(os.Stderr, result["message"])
 		os.Exit(1)

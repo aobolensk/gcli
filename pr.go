@@ -41,10 +41,7 @@ func editPullRequest(args []string, origin string) {
 		"GET",
 		"https://api.github.com/repos/"+origin+"/pulls/"+args[2],
 		nil)
-	if err != nil {
-		fmt.Fprintln(os.Stderr, err)
-		os.Exit(1)
-	}
+	checkError(err)
 	if result["message"] != nil {
 		fmt.Fprintln(os.Stderr, result["message"])
 		os.Exit(1)
@@ -72,10 +69,7 @@ func editPullRequest(args []string, origin string) {
 		"PATCH",
 		"https://api.github.com/repos/"+origin+"/pulls/"+args[2],
 		object)
-	if err != nil {
-		fmt.Fprintln(os.Stderr, err)
-		os.Exit(1)
-	}
+	checkError(err)
 	if resp["title"] != nil {
 		fmt.Println("Pull request successfully updated")
 	} else {
@@ -89,10 +83,7 @@ func getPullRequestByNumber(args []string, origin string) {
 		"GET",
 		"https://api.github.com/repos/"+origin+"/pulls/"+args[1],
 		nil)
-	if err != nil {
-		fmt.Fprintln(os.Stderr, err)
-		os.Exit(1)
-	}
+	checkError(err)
 	if result["message"] != nil {
 		fmt.Fprintln(os.Stderr, result["message"])
 		os.Exit(1)

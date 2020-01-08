@@ -41,10 +41,7 @@ func getCommitBySHA(args []string, origin string) {
 		"GET",
 		"https://api.github.com/repos/"+origin+"/commits/"+args[1],
 		nil)
-	if err != nil {
-		fmt.Fprintln(os.Stderr, err)
-		os.Exit(1)
-	}
+	checkError(err)
 	if resp["message"] != nil {
 		fmt.Fprintln(os.Stderr, resp["message"])
 		os.Exit(1)
