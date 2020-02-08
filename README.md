@@ -6,10 +6,11 @@
 ```console
 $ go build
 $ export GITHUB_TOKEN=<your github token>
-$ ./gcli
+$ ./gcli help
 ```
 
 ### Installation:
 ```console
 $ GOBIN=<installation path> go install
+$ gcli help
 ```
