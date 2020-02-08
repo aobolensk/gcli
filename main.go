@@ -28,7 +28,7 @@ func process(args []string) {
 		getInfo(args, origin)
 	case "commit":
 		if len(args) == 1 {
-			getOpenCommits(args, origin)
+			getCommits(args, origin)
 		} else if len(args) == 2 {
 			getCommitBySHA(args, origin)
 		} else {

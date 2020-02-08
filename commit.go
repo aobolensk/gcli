@@ -7,7 +7,7 @@ import (
 	"strings"
 )
 
-func getOpenCommits(args []string, origin string) {
+func getCommits(args []string, origin string) {
 	fmt.Println("List of commits for " + origin + ":")
 	for page := 1; ; page++ {
 		resp, err := queryList(
