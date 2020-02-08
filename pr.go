@@ -92,11 +92,11 @@ func getPullRequestByNumber(args []string, origin string) {
 	splittedLink := strings.Split(link, "/")
 	state := result["state"].(string)
 	if state == "open" {
-		state = "\033[32m" + state + "\033[0m"
+		state = "\033[32m" + state + "\033[0m\033[1m"
 	} else if state == "closed" {
-		state = "\033[31m" + state + "\033[0m"
+		state = "\033[31m" + state + "\033[0m\033[1m"
 		if result["merged_at"] != nil {
-			state = "\033[35mmerged\033[0m"
+			state = "\033[35mmerged\033[0m\033[1m"
 		}
 	}
 	labels := [](string){}
