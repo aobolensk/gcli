@@ -67,7 +67,6 @@ func extractOrigin() (string, error) {
 			if len(origin) == 0 {
 				return "", fmt.Errorf("Origin is empty")
 			}
-			fmt.Println(origin)
 			return origin, err
 		}
 	}
