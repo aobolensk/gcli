@@ -48,12 +48,26 @@ func extractOrigin() (string, error) {
 	for scanner.Scan() {
 		remoteOriginMatch, _ := regexp.MatchString("\\[remote \"origin\"\\]", scanner.Text())
 		if remoteOriginMatch {
-			r, _ := regexp.Compile("http[s]?://github\\.com/(.+)")
 			scanner.Scan()
-			origin := r.FindStringSubmatch(scanner.Text())[1]
+			r, _ := regexp.Compile("(git@github\\.com:(.+))|(http[s]?://github\\.com/(.+))")
+			match := r.FindStringSubmatch(scanner.Text())
+			origin := ""
+			// Extracted from "git@github.com:"
+			if len(match) > 2 && len(match[2]) > 0 {
+				origin = match[2]
+			}
+			// Extracted from "https://github.com:"
+			if len(match) > 4 && len(match[4]) > 0 {
+				origin = match[4]
+			}
+			// Truncate extra .git extension
 			if strings.HasSuffix(origin, ".git") {
 				origin = origin[:len(origin)-4]
 			}
+			if len(origin) == 0 {
+				return "", fmt.Errorf("Origin is empty")
+			}
+			fmt.Println(origin)
 			return origin, err
 		}
 	}
