@@ -3,6 +3,7 @@ package main
 import (
 	"bytes"
 	"encoding/json"
+	"fmt"
 	"net/http"
 	"os"
 )
@@ -33,7 +34,7 @@ func queryObject(httpMethod string, query string, body map[string]interface{}) (
 	defer resp.Body.Close()
 	err = json.NewDecoder(resp.Body).Decode(&result)
 	if err != nil {
-		return nil, err
+		return nil, fmt.Errorf("Status: %s\n%s", resp.Status, err)
 	}
 	return result, nil
 }
@@ -64,7 +65,7 @@ func queryList(httpMethod string, query string, body map[string]interface{}) ([]
 	defer resp.Body.Close()
 	err = json.NewDecoder(resp.Body).Decode(&result)
 	if err != nil {
-		return nil, err
+		return nil, fmt.Errorf("Status: %s\n%s", resp.Status, err)
 	}
 	return result, nil
 }
